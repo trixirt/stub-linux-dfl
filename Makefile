@@ -93,36 +93,37 @@ clean:
 	- rm drivers/spi/*.o
 	- rm drivers/spi/.*.d
 
-load: $(MODULES)
-	insmod intel-s10-phy.ko
-	insmod spi-altera.ko
-	insmod intel-m10-bmc.ko
-	insmod intel-m10-bmc-hwmon.ko
-	insmod fpga-bridge.ko
-	insmod fpga-mgr.ko
-	insmod fpga-region.ko
-	insmod dfl.ko
-	insmod intel_ll_10g_mac.ko
-	insmod dfl-pci.ko
-	insmod dfl-fme.ko
-	insmod dfl-afu.ko
-	insmod dfl-fme-br.ko
-	insmod dfl-fme-region.ko
-	insmod dfl-fme-mgr.ko
+load: $(MODULES) unload
+	insmod ./fpga-bridge.ko
+	insmod ./fpga-mgr.ko
+	insmod ./fpga-region.ko
+	insmod ./dfl.ko
+	insmod ./dfl-fme.ko
+	insmod ./dfl-afu.ko
+	insmod ./dfl-fme-br.ko
+	insmod ./dfl-fme-mgr.ko
+	insmod ./dfl-fme-region.ko
+	insmod ./intel_ll_10g_mac.ko
+	insmod ./intel-s10-phy.ko
+	insmod ./spi-altera.ko
+	insmod ./intel-m10-bmc.ko
+	insmod ./intel-m10-bmc-hwmon.ko
+	insmod ./dfl-pci.ko
 
 unload:
-	- rmmod dfl-fme-mgr
-	- rmmod dfl-fme-region
-	- rmmod dfl-fme-br
-	- rmmod dfl-afu
-	- rmmod dfl-fme
-	- rmmod dfl-pci
+	- rmmod dfl_pci
+	- rmmod dfl_fme_region
+	- rmmod dfl_fme_br
+	- rmmod dfl_afu
+	- rmmod dfl_fme
+	- rmmod intel_m10_bmc
+	- rmmod intel_m10_bmc_hwmon
+	- rmmod dfl_fme_mgr
+	- rmmod spi_altera
+	- rmmod intel_s10_phy
 	- rmmod intel_ll_10g_mac
 	- rmmod dfl
-	- rmmod fpga-region
-	- rmmod fpga-mgr
-	- rmmod fpga-bridge
-	- rmmod intel-m10-bmc
-	- rmmod intel-m10-bmc-hwmon
-	- rmmod spi-altera
-	- rmmod intel-s10-phy
+	- rmmod fpga_region
+	- rmmod fpga_mgr
+	- rmmod fpga_bridge
+
