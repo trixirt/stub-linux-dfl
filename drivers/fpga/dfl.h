@@ -243,6 +243,8 @@ struct dfl_feature_irq_ctx {
  * @irq_ctx: interrupt context list.
  * @nr_irqs: number of interrupt contexts.
  * @ops: ops of this sub feature.
+ * @wq: a workqueue for work.
+ * @work: for workqueues.
  * @priv: priv data of this feature.
  */
 struct dfl_feature {
@@ -254,6 +256,8 @@ struct dfl_feature {
 	struct dfl_feature_irq_ctx *irq_ctx;
 	unsigned int nr_irqs;
 	const struct dfl_feature_ops *ops;
+	struct workqueue_struct *wq;
+	struct work_struct work;
 	void *priv;
 };
 

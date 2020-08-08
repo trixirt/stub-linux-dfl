@@ -335,9 +335,74 @@ static void fme_err_mask(struct device *dev, bool mask)
 	mutex_unlock(&pdata->lock);
 }
 
+static void inject(void __iomem *base, u64 inject_error) {
+	u64 value;
+	value = readq(base + RAS_ERROR_INJECT);
+	value &= ~INJECT_ERROR_MASK;
+	value |= FIELD_PREP(INJECT_ERROR_MASK, inject_error);
+	writeq(value, base + RAS_ERROR_INJECT);
+
+}
+
+static void fme_global_err_work(struct work_struct *work)
+{
+	struct dfl_feature *feature = container_of(work, struct dfl_feature, work);
+	struct platform_device *pdev = feature->dev;
+	struct dfl_feature_platform_data *pdata = dev_get_platdata(&pdev->dev);
+
+	void __iomem *base;
+	u64 value;
+
+	base = feature->ioaddr;
+
+	mutex_lock(&pdata->lock);
+
+	value = readq(base + FME_ERROR);
+	printk(KERN_ERR "error:     : 0x%llx\n", (unsigned long long)value);
+	value = readq(base + PCIE0_ERROR);
+	printk(KERN_ERR "pci0       : 0x%llx\n", (unsigned long long)value);
+	value = readq(base + PCIE1_ERROR);
+	printk(KERN_ERR "pci1       : 0x%llx\n", (unsigned long long)value);
+	value = readq(base + FME_FIRST_ERROR);
+	printk(KERN_ERR "first error: 0x%llx\n", (unsigned long long)value);
+	value = readq(base + FME_NEXT_ERROR);
+	printk(KERN_ERR "first error: 0x%llx\n", (unsigned long long)value);
+	value = readq(base + RAS_NONFAT_ERROR);
+	printk(KERN_ERR "nonfatal   : 0x%llx\n", (unsigned long long)value);
+	value = readq(base + RAS_CATFAT_ERROR);
+	printk(KERN_ERR "fatal      : 0x%llx\n", (unsigned long long)value);
+	value = readq(base + RAS_ERROR_INJECT);
+	printk(KERN_ERR "inject     : 0x%llx\n", (unsigned long long)value);
+	mutex_unlock(&pdata->lock);
+}
+
+static irqreturn_t fme_global_err_irq(int irq, void *arg)
+{
+	struct dfl_feature *feature = arg;
+	queue_work(feature->wq, &feature->work);
+	return IRQ_HANDLED;
+}
+
+static char *irq_name = "fpga-errors";
+
 static int fme_global_err_init(struct platform_device *pdev,
 			       struct dfl_feature *feature)
 {
+	if (feature->nr_irqs) {
+		feature->wq = alloc_workqueue("fpga_errors_wq", WQ_UNBOUND, 0);
+		if (feature->wq) {
+			INIT_WORK(&feature->work, fme_global_err_work);
+			if (request_irq(feature->irq_ctx[0].irq, fme_global_err_irq, 0, irq_name, feature)) {
+				destroy_workqueue(feature->wq);
+				feature->wq = NULL;
+			}
+			/* cat 1       */
+			/* fatal 2     */
+			/* non fatal 4 */
+			//inject(feature->ioaddr, 4);
+		}
+	}
+	
 	fme_err_mask(&pdev->dev, false);
 
 	return 0;
@@ -347,6 +412,13 @@ static void fme_global_err_uinit(struct platform_device *pdev,
 				 struct dfl_feature *feature)
 {
 	fme_err_mask(&pdev->dev, true);
+
+	if (feature->nr_irqs) {
+		if (feature->wq) {
+			free_irq(feature->irq_ctx[0].irq, feature);
+			destroy_workqueue(feature->wq);
+		}
+	}
 }
 
 static long
