@@ -1,0 +1,73 @@
+#
+# OPAE Intel FPGA Drivers rpm .spec file
+#
+Summary: OPAE Intel FPGA Drivers
+Name: opae-intel-fpga-driver
+Version: PKGVER
+Release: PKGREL
+License: Intel Proprietary
+Group: Applications/System
+Vendor: Intel Corporation
+Source: %{name}-%{version}-%{release}.tar.gz
+Exclusiveos: linux
+ExclusiveArch: i386 i586 i686 x86_64
+Buildroot: %{_builddir}/%{name}-%{version}-%{release}
+BuildRequires: kernel-headers, kernel-devel, tar, gcc, make
+%global debug_package %{nil}
+
+%prep
+%setup -q
+
+%description
+OPAE Intel FPGA Driver
+
+%build
+make -C /lib/modules/`uname -r`/build M=$PWD modules INSTALL_MOD_PATH=$RPM_BUILD_ROOT ARCH=$RPM_ARCH
+
+%install
+make -C /lib/modules/`uname -r`/build M=$PWD modules_install INSTALL_MOD_PATH=$RPM_BUILD_ROOT ARCH=$RPM_ARCH
+rm -f $RPM_BUILD_ROOT/lib/modules/`uname -r`/modules.*
+install -d $RPM_BUILD_ROOT/etc/udev/rules.d
+install -m 600 40-intel-fpga.rules $RPM_BUILD_ROOT/etc/udev/rules.d
+
+%post
+depmod -A
+modprobe fpga-mgr-mod
+modprobe intel-fpga-pci
+modprobe intel-fpga-afu
+modprobe intel-fpga-fme
+modprobe spi-altera-mod
+modprobe i2c-altera
+modprobe intel-max10
+modprobe c827_retimer
+modprobe pac_n3000_net
+
+if [ -x /sbin/udevadm ]; then
+      /sbin/udevadm control --reload-rules
+      /sbin/udevadm trigger
+fi
+
+%preun
+if [ -n "`lsmod | grep fpga`" ]; then
+  rmmod intel-fpga-fme
+  rmmod intel-fpga-afu
+  rmmod intel-fpga-pci
+  rmmod fpga-mgr-mod
+  rmmod intel-max10
+  rmmod spi-altera-mod
+  rmmod i2c-altera
+  rmmod c827_retimer
+  rmmod pac_n3000_net
+
+fi
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+/lib/modules
+/etc/udev/rules.d
+
+%changelog
