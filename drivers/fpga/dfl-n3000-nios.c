@@ -22,6 +22,7 @@
 #include <linux/spi/altera.h>
 #include <linux/spi/spi.h>
 #include <linux/types.h>
+#include <linux/version.h>
 
 static char *fec_mode = "rs";
 module_param(fec_mode, charp, 0444);
@@ -168,12 +169,16 @@ static ssize_t fec_mode_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(fec_mode);
 
+#if RHEL_RELEASE_CODE >= 0x803
+
 static struct attribute *n3000_nios_attrs[] = {
 	&dev_attr_nios_fw_version.attr,
 	&dev_attr_fec_mode.attr,
 	NULL,
 };
+
 ATTRIBUTE_GROUPS(n3000_nios);
+#endif
 
 static int init_error_detected(struct dfl_n3000_nios *ns)
 {
@@ -474,7 +479,9 @@ static const struct dfl_device_id dfl_n3000_nios_ids[] = {
 static struct dfl_driver dfl_n3000_nios_driver = {
 	.drv	= {
 		.name       = "dfl-n3000-nios",
+#if RHEL_RELEASE_CODE >= 0x803
 		.dev_groups = n3000_nios_groups,
+#endif
 	},
 	.id_table = dfl_n3000_nios_ids,
 	.probe   = dfl_n3000_nios_probe,

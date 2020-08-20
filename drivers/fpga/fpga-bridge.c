@@ -12,6 +12,7 @@
 #include <linux/of_platform.h>
 #include <linux/slab.h>
 #include <linux/spinlock.h>
+#include <linux/version.h>
 
 static DEFINE_IDA(fpga_bridge_ida);
 static struct class *fpga_bridge_class;
