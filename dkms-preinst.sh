@@ -1,25 +1,25 @@
 #!/bin/sh
 
-rmmod i2c-altera \
-	  intel-generic-qspi \
-	  intel-on-chip-flash \
-	  altera-asmip2 \
-	  spi-altera-mod \
-	  spi-nor-mod \
-	  intel-max10 \
-	  avmmi-bmc \
-	  intel-fpga-fme \
-	  fpga-mgr-mod \
-	  intel-fpga-afu \
-	  intel-fpga-pci \
-	  intel-fpga-pac-hssi \
-	  intel-fpga-pac-iopll \
-	  c827_retimer \
-	  pac_n3000_net \
-	  ifpga-sec-mgr \
-	  spi-bitbang-mod \
-	  regmap-mmio-mod 2>/dev/null
+rmmod    ifpga_sec_mgr \
+	 dfl_fme_mgr \
+	 dfl_fme_region \
+	 dfl_fme_br \
+	 dfl_afu \
+	 dfl_fme \
+	 dfl_pci \
+	 s10hssi \
+	 n5010_hssi \
+	 dfl_n3000_nios \
+	 dfl_spi_altera \
+	 dfl \
+	 fpga_region \
+	 fpga_mgr \
+	 fpga_bridge \
+	 intel_m10_bmc \
+	 intel_m10_bmc_hwmon \
+	 spi_altera \
+	 intel_s10_phy  2>/dev/null
 
 if [ -d $DESTDIR/etc/udev/rules.d ]; then
-  cp $DESTDIR/usr/src/opae-intel-fpga-driver-PKGVER/40-intel-fpga.rules $DESTDIR/etc/udev/rules.d
+  cp $DESTDIR/usr/src/opae-dfl-fpga-driver-PKGVER/40-dfl-fpga.rules $DESTDIR/etc/udev/rules.d
 fi
