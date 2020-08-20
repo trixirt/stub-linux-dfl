@@ -73,31 +73,14 @@ intel-s10-phy-objs := drivers/net/phy/intel-s10-phy.o
 spi-altera-objs := drivers/spi/spi-altera.o drivers/base/regmap/regmap-mmio.o
 
 all: 
-	$(MAKE) -C $(KERNELDIR) M=$(CURDIR) $(MODULES)
+	$(MAKE) -j 1 -C $(KERNELDIR) M=$(CURDIR) $(MODULES)
+
+rpm: clean
+	build/build-driver-rpm.sh
 
 clean:
-	- rm *.o
-	- rm *.ko
-	- rm Module.symvers
-	- rm *.mod.c
-	- rm .*.d
-	- rm .*.cmd
-	- rm -rf .tmp_versions
-	- rm *.a
-	- rm drivers/base/regmap/*.o
-	- rm drivers/base/regmap/.*.d
-	- rm drivers/fpga/*.o
-	- rm drivers/fpga/.*.d
-	- rm drivers/hwmon/*.o
-	- rm drivers/hwmon/.*.d
-	- rm drivers/mfd/*.o
-	- rm drivers/mfd/.*.d
-	- rm drivers/net/ethernet/intel/*.o
-	- rm drivers/net/ethernet/intel/.*.d
-	- rm drivers/net/phy/*.o
-	- rm drivers/net/phy/.*.d
-	- rm drivers/spi/*.o
-	- rm drivers/spi/.*.d
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
+	- rm -rf build/rpmbuild
 
 load: $(MODULES)
 	insmod intel-s10-phy.ko

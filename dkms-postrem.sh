@@ -1,24 +1,22 @@
 #!/bin/sh
-if [ -f $DESTDIR/etc/udev/rules.d/40-intel-fpga.rules ]; then
-  rm -f $DESTDIR/etc/udev/rules.d/40-intel-fpga.rules
+if [ -f $DESTDIR/etc/udev/rules.d/40-dfl-fpga.rules ]; then
+  rm -f $DESTDIR/etc/udev/rules.d/40-dfl-fpga.rules
 fi
 
-rmmod i2c-altera \
-	  intel-generic-qspi \
-	  intel-on-chip-flash \
-	  altera-asmip2 \
-	  spi-altera-mod \
-	  spi-nor-mod \
-	  intel-max10 \
-	  avmmi-bmc \
-	  intel-fpga-fme \
-	  fpga-mgr-mod \
-	  intel-fpga-afu \
-	  intel-fpga-pci \
-	  intel-fpga-pac-hssi \
-	  intel-fpga-pac-iopll \
-	  c827_retimer \
-	  pac_n3000_net \
-	  ifpga-sec-mgr \
-	  spi-bitbang-mod \
-	  regmap-mmio-mod 2>/dev/null
+rmmod    dfl-fme-mgr \
+	 dfl-fme-region \
+	 dfl-fme-br \
+	 dfl-afu \
+	 dfl-fme \
+	 dfl-pci \
+	 intel_ll_10g_mac \
+	 dfl_n3000_nios \
+	 dfl_spi_altera \
+	 dfl \
+	 fpga-region \
+	 fpga-mgr \
+	 fpga-bridge \
+	 intel-m10-bmc \
+	 intel-m10-bmc-hwmon \
+	 spi-altera \
+	 intel-s10-phy  2>/dev/null

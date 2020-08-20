@@ -2,21 +2,18 @@
 # OPAE Drivers rpm .spec file
 #
 Summary: Create OPAE Driver source and binary rpm packages.
-Name: opae-intel-fpga-driver
-Version: 2.0.1
-Release: 9
+Name: opae-dfl-fpga-driver
+Version: 5.8.0
+Release: alpha
 License: GPL V2
 Group: Applications/System
-Distribution: CentOS Linux
+Distribution: RHEL Linux
 Vendor: Intel Corporation
 Source: %{name}-%{version}.tar.gz
 Exclusiveos: linux
 ExclusiveArch: i386 i586 i686 x86_64
 Buildroot: %{_builddir}/%{name}-%{version}
 BuildRequires: kernel-headers, kernel-devel, tar, gcc, make
-#BuildRequires: osv-linux4.14-devel
-#BuildRequires: osv-linux4.16-devel
-#BuildRequires: osv-linux4.19-devel
 %if 0%{?suse_version}
 BuildRequires: kernel-default-devel
 %else
@@ -100,9 +97,8 @@ install -d $RPM_BUILD_ROOT/usr/src/%{name}-%{version}
 cp -a drivers $RPM_BUILD_ROOT/usr/src/%{name}-%{version}
 cp -a include $RPM_BUILD_ROOT/usr/src/%{name}-%{version}
 cp -a scripts $RPM_BUILD_ROOT/usr/src/%{name}-%{version}
-cp -a lib-4-12 $RPM_BUILD_ROOT/usr/src/%{name}-%{version}
 cp -a Makefile $RPM_BUILD_ROOT/usr/src/%{name}-%{version}
-cp -a 40-intel-fpga.rules $RPM_BUILD_ROOT/usr/src/%{name}-%{version}
+cp -a 40-dfl-fpga.rules $RPM_BUILD_ROOT/usr/src/%{name}-%{version}
 cp -a LICENSE $RPM_BUILD_ROOT/usr/src/%{name}-%{version}
 # Now, create/install a source tarball of the driver for the -source package
 # Make a tarball of the driver source
@@ -116,16 +112,15 @@ rm -rf $RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}.tar.gz $RPM_BUILD_R
 
 # Prebuilt module udev file
 install -d $RPM_BUILD_ROOT/etc/udev/rules.d
-cp -a 40-intel-fpga.rules $RPM_BUILD_ROOT/etc/udev/rules.d
+cp -a 40-dfl-fpga.rules $RPM_BUILD_ROOT/etc/udev/rules.d
 
 # Now, install the source for the DKMS package
 install -d $RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}
 cp -a drivers $RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}
 cp -a include $RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}
 cp -a scripts $RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}
-cp -a lib-4-12 $RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}
 cp -a Makefile $RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}
-cp -a 40-intel-fpga.rules $RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}
+cp -a 40-dfl-fpga.rules $RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}
 cp -a LICENSE $RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}
 
 # DKMS stuff
@@ -137,15 +132,15 @@ echo "Creating $RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}/dkms.conf"
 sed -e 's/PKGVER/%{version}-%{release}/' dkms.conf >$RPM_BUILD_ROOT/usr/src/%{name}-%{version}-%{release}/dkms.conf
 
 %post
-if [ -z "`dkms status -m opae-intel-fpga-driver -v %{version}-%{release}`" ]; then
+if [ -z "`dkms status -m opae-dfl-fpga-driver -v %{version}-%{release}`" ]; then
   echo "Add module source to dkms"
-  dkms add -m opae-intel-fpga-driver -v %{version}-%{release} --rpm_safe_upgrade
+  dkms add -m opae-dfl-fpga-driver -v %{version}-%{release} --rpm_safe_upgrade
 fi
 
 # If we haven't loaded a tarball, then try building it for the current kernel
 if [ `uname -r | grep -c "BOOT"` -eq 0 ] && [ -e /lib/modules/`uname -r`/build/include ]; then
-  dkms build -m opae-intel-fpga-driver -v %{version}-%{release}
-  dkms install -m opae-intel-fpga-driver -v %{version}-%{release} --force
+  dkms build -m opae-dfl-fpga-driver -v %{version}-%{release}
+  dkms install -m opae-dfl-fpga-driver -v %{version}-%{release} --force
 
 elif [ `uname -r | grep -c "BOOT"` -gt 0 ]; then
   echo -e ""
@@ -162,18 +157,18 @@ exit 0
 
 %preun
 echo -e
-echo -e "Uninstall of opae-intel-fpga-driver module (version %{version}-%{release}) beginning:"
-dkms remove -m opae-intel-fpga-driver -v %{version}-%{release} --all --rpm_safe_upgrade
+echo -e "Uninstall of opae-dfl-fpga-driver module (version %{version}-%{release}) beginning:"
+dkms remove -m opae-dfl-fpga-driver -v %{version}-%{release} --all --rpm_safe_upgrade
 if [ "$1" -eq "0" ]
 then
 	find /lib/modules -type f \( -name spi-nor-mod.ko* \
-							 -o -name altera-asmip2.ko* \
-                             -o -name fpga-mgr-mod.ko* \
-                             -o -name intel-fpga-pci.ko* \
-                             -o -name intel-fpga-fme.ko* \
-                             -o -name intel-fpga-afu.ko* \
-                             -o -name intel-fpga-pac-hssi.ko* \
-                             -o -name intel-fpga-pac-iopll.ko* \) -delete
+	     -o -name altera-asmip2.ko* \
+             -o -name fpga-mgr-mod.ko* \
+             -o -name dfl-fpga-pci.ko* \
+             -o -name dfl-fpga-fme.ko* \
+             -o -name dfl-fpga-afu.ko* \
+             -o -name dfl-fpga-pac-hssi.ko* \
+             -o -name dfl-fpga-pac-iopll.ko* \) -delete
 fi
 echo -e "Force regeneration of new initramfs"
 dracut --force /boot/initramfs-$(uname -r).img $(uname -r)
