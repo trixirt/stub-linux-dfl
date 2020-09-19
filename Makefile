@@ -25,6 +25,7 @@ MODULES = \
 	intel-s10-phy.ko \
 	spi-altera.ko
 
+
 obj-m += dfl-afu.o
 obj-m += dfl-fme.o
 obj-m += dfl-fme-br.o
@@ -50,11 +51,13 @@ obj-m += drivers/fpga/dfl-afu-region.o
 obj-m += drivers/fpga/dfl-fme-error.o
 obj-m += drivers/fpga/dfl-fme-perf.o
 obj-m += drivers/fpga/dfl-fme-pr.o
+obj-m += drivers/fpga/dfl-uio.o
+
 obj-m += drivers/mfd/intel-m10-bmc-main.o
 obj-m += drivers/mfd/intel-spi-avmm.o
 
-dfl-objs := drivers/fpga/dfl.o
-dfl-afu-objs := drivers/fpga/dfl-afu-region.o drivers/fpga/dfl-afu-error.o drivers/fpga/dfl-afu-dma-region.o drivers/fpga/dfl-afu-main.o
+dfl-objs := drivers/fpga/dfl.o drivers/fpga/dfl-uio.o
+dfl-afu-objs := drivers/fpga/dfl-afu-region.o drivers/fpga/dfl-afu-error.o drivers/fpga/dfl-afu-dma-region.o drivers/fpga/dfl-afu-main.o 
 
 dfl-fme-objs := drivers/fpga/dfl-fme-error.o drivers/fpga/dfl-fme-main.o drivers/fpga/dfl-fme-pr.o drivers/fpga/dfl-fme-perf.o 
 dfl-fme-br-objs := drivers/fpga/dfl-fme-br.o
@@ -63,6 +66,7 @@ dfl-fme-region-objs := drivers/fpga/dfl-fme-region.o
 dfl-n3000-nios-objs := drivers/fpga/dfl-n3000-nios.o
 dfl-pci-objs := drivers/fpga/dfl-pci.o
 dfl-spi-altera-objs := drivers/fpga/dfl-spi-altera.o
+dfl-uio-objs := drivers/fpga/dfl-uio.o
 fpga-bridge-objs := drivers/fpga/fpga-bridge.o
 fpga-mgr-objs := drivers/fpga/fpga-mgr.o
 fpga-region-objs := drivers/fpga/fpga-region.o
@@ -102,20 +106,20 @@ load: $(MODULES)
 	insmod dfl-fme-mgr.ko
 
 unload:
-	- rmmod dfl-fme-mgr
-	- rmmod dfl-fme-region
-	- rmmod dfl-fme-br
-	- rmmod dfl-afu
-	- rmmod dfl-fme
-	- rmmod dfl-pci
+	- rmmod dfl_fme_mgr
+	- rmmod dfl_fme_region
+	- rmmod dfl_fme_br
+	- rmmod dfl_afu
+	- rmmod dfl_fme
+	- rmmod dfl_pci
 	- rmmod intel_ll_10g_mac
 	- rmmod dfl_n3000_nios
 	- rmmod dfl_spi_altera
 	- rmmod dfl
-	- rmmod fpga-region
-	- rmmod fpga-mgr
-	- rmmod fpga-bridge
-	- rmmod intel-m10-bmc
-	- rmmod intel-m10-bmc-hwmon
-	- rmmod spi-altera
-	- rmmod intel-s10-phy
+	- rmmod fpga_region
+	- rmmod fpga_mgr
+	- rmmod fpga_bridge
+	- rmmod intel_m10_bmc
+	- rmmod intel_m10_bmc_hwmon
+	- rmmod spi_altera
+	- rmmod intel_s10_phy
