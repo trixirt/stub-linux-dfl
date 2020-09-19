@@ -603,6 +603,7 @@ static int dfl_feature_instance_init(struct platform_device *pdev,
 	}
 
 	feature->ops = drv->ops;
+	mutex_init(&feature->lock);
 
 	return ret;
 }
@@ -663,10 +664,51 @@ exit:
 }
 EXPORT_SYMBOL_GPL(dfl_fpga_dev_feature_init);
 
+int dfl_fpga_dev_feature_init_uio(struct platform_device *pdev, int dfh_type) {
+	struct dfl_feature_platform_data *pdata = dev_get_platdata(&pdev->dev);
+	struct dfl_feature *feature;
+	int ret;
+
+	dfl_fpga_dev_for_each_feature(pdata, feature) {
+		if (dfh_type == DFH_TYPE_FIU) {
+			if (feature->id == FEATURE_ID_FIU_HEADER ||
+			    feature->id == FEATURE_ID_AFU)
+			    continue;
+
+			ret = dfl_uio_add(feature);
+			if (ret)
+				goto exit;
+		}
+	}
+
+	return 0;
+exit:
+	dfl_fpga_dev_feature_uinit_uio(pdev, dfh_type);
+	return ret;
+}
+EXPORT_SYMBOL_GPL(dfl_fpga_dev_feature_init_uio);
+
+int dfl_fpga_dev_feature_uinit_uio(struct platform_device *pdev, int dfh_type) {
+	struct dfl_feature_platform_data *pdata = dev_get_platdata(&pdev->dev);
+	struct dfl_feature *feature;
+	int ret = 0;
+
+	dfl_fpga_dev_for_each_feature(pdata, feature) {
+		if (dfh_type == DFH_TYPE_FIU) {
+			if (feature->id == FEATURE_ID_FIU_HEADER ||
+			    feature->id == FEATURE_ID_AFU)
+				continue;
+
+			ret |= dfl_uio_remove(feature);
+		}
+	}
+	return ret;
+}
+EXPORT_SYMBOL_GPL(dfl_fpga_dev_feature_uinit_uio);
+
 static void dfl_chardev_uinit(void)
 {
 	int i;
-
 	for (i = 0; i < DFL_FPGA_DEVT_MAX; i++)
 		if (MAJOR(dfl_chrdevs[i].devt)) {
 			unregister_chrdev_region(dfl_chrdevs[i].devt,

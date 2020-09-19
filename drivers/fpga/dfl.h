@@ -26,6 +26,7 @@
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 #include <linux/uuid.h>
+#include <linux/uio_driver.h>
 #include <linux/fpga/fpga-region.h>
 
 /* maximum supported number of ports */
@@ -232,6 +233,7 @@ struct dfl_feature_irq_ctx {
  * struct dfl_feature - sub feature of the feature devices
  *
  * @dev: ptr to pdev of the feature device which has the sub feature.
+ * @uio: uio interface for feature.
  * @id: sub feature id.
  * @index: unique identifier for an sub feature within the feature device.
  *	   It is possible that multiply sub features with same feature id are
@@ -248,6 +250,8 @@ struct dfl_feature_irq_ctx {
  */
 struct dfl_feature {
 	struct platform_device *dev;
+	struct uio_info uio;
+	struct mutex lock; /* serialize dev and uio */
 	u64 id;
 	int index;
 	int resource_index;
@@ -359,6 +363,11 @@ static inline int dfl_feature_platform_data_size(const int num)
 void dfl_fpga_dev_feature_uinit(struct platform_device *pdev);
 int dfl_fpga_dev_feature_init(struct platform_device *pdev,
 			      struct dfl_feature_driver *feature_drvs);
+
+int dfl_fpga_dev_feature_init_uio(struct platform_device *pdev, int dfh_type);
+int dfl_fpga_dev_feature_uinit_uio(struct platform_device *pdev, int dfh_type);
+int dfl_uio_add(struct dfl_feature *feature);
+int dfl_uio_remove(struct dfl_feature *feature);
 
 int dfl_fpga_dev_ops_register(struct platform_device *pdev,
 			      const struct file_operations *fops,

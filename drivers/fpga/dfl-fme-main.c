@@ -709,12 +709,18 @@ static int fme_probe(struct platform_device *pdev)
 	if (ret)
 		goto dev_destroy;
 
-	ret = dfl_fpga_dev_ops_register(pdev, &fme_fops, THIS_MODULE);
+	ret = dfl_fpga_dev_feature_init_uio(pdev, DFH_TYPE_FIU);
 	if (ret)
 		goto feature_uinit;
 
+	ret = dfl_fpga_dev_ops_register(pdev, &fme_fops, THIS_MODULE);
+	if (ret)
+		goto feature_uinit_uio;
+
 	return 0;
 
+feature_uinit_uio:
+	dfl_fpga_dev_feature_uinit_uio(pdev, DFH_TYPE_FIU);
 feature_uinit:
 	dfl_fpga_dev_feature_uinit(pdev);
 dev_destroy:
@@ -726,6 +732,7 @@ exit:
 static int fme_remove(struct platform_device *pdev)
 {
 	dfl_fpga_dev_ops_unregister(pdev);
+	dfl_fpga_dev_feature_uinit_uio(pdev, DFH_TYPE_FIU);
 	dfl_fpga_dev_feature_uinit(pdev);
 	fme_dev_destroy(pdev);
 
