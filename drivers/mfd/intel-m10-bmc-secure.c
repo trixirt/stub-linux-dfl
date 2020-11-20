@@ -593,6 +593,10 @@ static int m10bmc_secure_remove(struct platform_device *pdev)
 	return 0;
 }
 
+	{
+		.name = "n5010bmc-secure",
+		.driver_data = (unsigned long)M10_N5010,
+	},
 static struct platform_driver intel_m10bmc_secure_driver = {
 	.probe = m10bmc_secure_probe,
 	.remove = m10bmc_secure_remove,
