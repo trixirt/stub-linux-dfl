@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Silicom network device configuration
+#
+
+config NET_VENDOR_SILICOM
+	bool "Silicom devices"
+	default y
+	help
+	  If you have a network (Ethernet) card belonging to this class, say Y.
+
+	  Note that the answer to this question doesn't directly affect the
+	  kernel: saying N will just cause the configurator to skip all
+	  the questions about Silicom cards. If you say Y, you will be asked for
+	  your specific card in the following questions.
+
+if NET_VENDOR_SILICOM
+
+config N5010_HSSI
+	tristate "Control Plane Driver for Silicom Lightning Creek N5010 HSSI"
+	help
+	  This driver provides control plane support for the Silicom Lightning
+	  Creek N5010 High Speed Serial Interface card.
+
+endif # NET_VENDOR_SILICOM
