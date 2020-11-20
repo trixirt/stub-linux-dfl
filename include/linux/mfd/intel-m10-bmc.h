@@ -175,6 +175,73 @@ m10bmc_raw_read(struct intel_m10bmc *m10bmc, unsigned int addr,
 #define m10bmc_sys_read(m10bmc, offset, val) \
 	m10bmc_raw_read(m10bmc, M10BMC_SYS_BASE + (offset), val)
 
+static inline int
+m10bmc_raw_bulk_read(struct intel_m10bmc *m10bmc, unsigned int addr,
+		     void *val, size_t cnt)
+{
+	int ret;
+
+	ret = regmap_bulk_read(m10bmc->regmap, addr, val, cnt);
+	if (ret)
+		dev_err(m10bmc->dev, "fail to read raw reg %x cnt %zx: %d\n",
+			addr, cnt, ret);
+
+	return ret;
+}
+
+static inline int
+m10bmc_raw_bulk_write(struct intel_m10bmc *m10bmc, unsigned int addr,
+		      void *val, size_t cnt)
+{
+	int ret;
+
+	ret = regmap_bulk_write(m10bmc->regmap, addr, val, cnt);
+	if (ret)
+		dev_err(m10bmc->dev, "fail to write raw reg %x cnt %zx: %d\n",
+			addr, cnt, ret);
+
+	return ret;
+}
+
+static inline int
+m10bmc_raw_update_bits(struct intel_m10bmc *m10bmc, unsigned int addr,
+		       unsigned int msk, unsigned int val)
+{
+	int ret;
+
+	ret = regmap_update_bits(m10bmc->regmap, addr, msk, val);
+	if (ret)
+		dev_err(m10bmc->dev, "fail to update raw reg %x: %d\n",
+			addr, ret);
+
+	return ret;
+}
+
+int m10bmc_sys_read(struct intel_m10bmc *m10bmc, unsigned int offset,
+		    unsigned int *val);
+
+int m10bmc_sys_update_bits(struct intel_m10bmc *m10bmc, unsigned int offset,
+			   unsigned int msk, unsigned int val);
+
+/*
+ * Track the state of the firmware, as it is not available for
+ * register handshakes during secure updates.
+ *
+ * m10bmc_fw_state_enter - firmware is unavailable for handshakes
+ * m10bmc_fw_state_exit  - firmware is available for handshakes
+ */
+int m10bmc_fw_state_enter(struct intel_m10bmc *m10bmc,
+			  enum m10bmc_fw_state new_state);
+
+void m10bmc_fw_state_exit(struct intel_m10bmc *m10bmc);
+
+/* Supported MAX10 BMC types */
+enum m10bmc_type {
+	M10_N3000,
+	M10_D5005,
+	M10_N5010, /* Silicom Lightning Creek */
+};
+
 /* M10BMC system sub devices for PAC N3000 */
 /* subdev Parkvale Interface  */
 struct intel_m10bmc_pkvl_pdata {
