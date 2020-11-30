@@ -13,6 +13,41 @@
 #include <linux/slab.h>
 #include <linux/device.h>
 
+/* use of readl_poll_timeout depends on include/linux/iopoll.h */
+#ifndef read_poll_timeout
+#define read_poll_timeout(op, val, cond, sleep_us, timeout_us, \
+				sleep_before_read, args...) \
+({ \
+	u64 __timeout_us = (timeout_us); \
+	unsigned long __sleep_us = (sleep_us); \
+	ktime_t __timeout = ktime_add_us(ktime_get(), __timeout_us); \
+	might_sleep_if((__sleep_us) != 0); \
+	if (sleep_before_read && __sleep_us) \
+		usleep_range((__sleep_us >> 2) + 1, __sleep_us); \
+	for (;;) { \
+		(val) = op(args); \
+		if (cond) \
+			break; \
+		if (__timeout_us && \
+		    ktime_compare(ktime_get(), __timeout) > 0) { \
+			(val) = op(args); \
+			break; \
+		} \
+		if (__sleep_us) \
+			usleep_range((__sleep_us >> 2) + 1, __sleep_us); \
+	} \
+	(cond) ? 0 : -ETIMEDOUT; \
+})
+#endif
+#ifndef readx_poll_timeout
+#define readx_poll_timeout(op, addr, val, cond, sleep_us, timeout_us)	\
+	read_poll_timeout(op, val, cond, sleep_us, timeout_us, false, addr)
+#endif
+#ifndef readl_poll_timeout
+#define readl_poll_timeout(addr, val, cond, delay_us, timeout_us) \
+	readx_poll_timeout(readl, addr, val, cond, delay_us, timeout_us)
+#endif
+
 #ifdef CONFIG_DEBUG_FS
 
 static ssize_t user_buffer_to_uint(const char __user *buffer, size_t count,
