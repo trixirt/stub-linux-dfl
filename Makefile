@@ -23,6 +23,7 @@ MODULES = \
 	n5010-hssi.ko \
 	intel-m10-bmc.ko \
 	intel-m10-bmc-hwmon.ko \
+	intel-m10-bmc-secure.ko \
 	intel-s10-phy.ko \
 	spi-altera.ko \
 	ifpga-sec-mgr.ko \
@@ -44,6 +45,7 @@ obj-m += s10hssi.o
 obj-m += n5010-hssi.o
 obj-m += intel-m10-bmc.o
 obj-m += intel-m10-bmc-hwmon.o
+obj-m += intel-m10-bmc-secure.o
 obj-m += intel-s10-phy.o
 obj-m += spi-altera.o
 obj-m += ifpga-sec-mgr.o
@@ -80,6 +82,7 @@ s10hssi-objs := drivers/net/ethernet/intel/s10hssi.o
 n5010-hssi-objs := drivers/net/ethernet/silicom/n5010-hssi.o
 intel-m10-bmc-objs := drivers/mfd/intel-m10-bmc-main.o drivers/mfd/intel-spi-avmm.o
 intel-m10-bmc-hwmon-objs := drivers/hwmon/intel-m10-bmc-hwmon.o
+intel-m10-bmc-secure-objs := drivers/mfd/intel-m10-bmc-secure.o
 intel-s10-phy-objs := drivers/net/phy/intel-s10-phy.o
 spi-altera-objs := drivers/spi/spi-altera.o drivers/base/regmap/regmap-mmio.o
 
@@ -113,10 +116,9 @@ load: $(MODULES)
 	insmod dfl-fme-region.ko
 	insmod dfl-fme-mgr.ko
 	insmod ifpga-sec-mgr.ko
+	insmod intel-m10-bmc-secure.ko
 
 unload:
-	- rmmod ifpga_sec_mgr
-	- rmmod dfl_fme_mgr
 	- rmmod dfl_fme_region
 	- rmmod dfl_fme_br
 	- rmmod dfl_afu
@@ -128,9 +130,12 @@ unload:
 	- rmmod dfl_spi_altera
 	- rmmod dfl
 	- rmmod fpga_region
+	- rmmod dfl_fme_mgr
 	- rmmod fpga_mgr
 	- rmmod fpga_bridge
-	- rmmod intel_m10_bmc
 	- rmmod intel_m10_bmc_hwmon
+	- rmmod intel_m10_bmc_secure
+	- rmmod ifpga-sec-mgr
+	- rmmod intel-m10-bmc
 	- rmmod spi_altera
 	- rmmod intel_s10_phy
