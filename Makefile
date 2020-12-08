@@ -97,7 +97,6 @@ clean:
 	- rm -rf build/rpmbuild
 
 load: $(MODULES)
-	insmod intel-s10-phy.ko
 	insmod spi-altera.ko
 	insmod intel-m10-bmc.ko
 	insmod intel-m10-bmc-hwmon.ko
@@ -105,10 +104,8 @@ load: $(MODULES)
 	insmod fpga-mgr.ko
 	insmod fpga-region.ko
 	insmod dfl.ko
-	insmod s10hssi.ko
 	insmod n5010-hssi.ko
 	insmod dfl-spi-altera.ko
-	insmod dfl-n3000-nios.ko
 	insmod dfl-pci.ko
 	insmod dfl-fme.ko
 	insmod dfl-afu.ko
@@ -124,9 +121,7 @@ unload:
 	- rmmod dfl_afu
 	- rmmod dfl_fme
 	- rmmod dfl_pci
-	- rmmod s10hssi
 	- rmmod n5010_hssi
-	- rmmod dfl_n3000_nios
 	- rmmod dfl_spi_altera
 	- rmmod dfl
 	- rmmod fpga_region
@@ -138,4 +133,3 @@ unload:
 	- rmmod ifpga-sec-mgr
 	- rmmod intel-m10-bmc
 	- rmmod spi_altera
-	- rmmod intel_s10_phy
